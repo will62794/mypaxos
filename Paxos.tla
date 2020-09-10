@@ -242,7 +242,3 @@ chosen == {v \in Value : \E b \in Ballot : ChosenAt(b, v)}
 \*                                                       => mm.val = m.val
 \*       /\ V!Inv
 ============================================================================
-\* Modification History
-\* Last modified Fri Feb 07 23:14:35 EST 2020 by williamschultz
-\* Last modified Thu May 10 21:00:44 EDT 2018 by willyschultz
-\* Created Mon Mar 26 20:54:30 EDT 2018 by williamschultz
