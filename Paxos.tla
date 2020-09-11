@@ -8,7 +8,7 @@ EXTENDS Integers, FiniteSets
 (***************************************************************************)
 (* The constant parameters and the set Ballots are the same as in Voting.  *)
 (***************************************************************************)
-CONSTANT Value, Acceptor, Quorum
+CONSTANT Value, Acceptor, Quorum, Proposer
 
 ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
                            /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
@@ -90,8 +90,8 @@ Send(m) == msgs' = msgs \cup {m}
 (* Phase2a(b).  The Phase1a(b) action sends a phase 1a message (a message  *)
 (* m with m.type = "1a") that begins ballot b.                             *)
 (***************************************************************************)
-Phase1a(b) == /\ Send([type |-> "1a", bal |-> b])
-              /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
+Phase1a(b, p) == /\ Send([type |-> "1a", bal |-> b, proposer |-> p])
+                 /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
                  
 (***************************************************************************)
 (* Upon receipt of a ballot b phase 1a message, acceptor a can perform a   *)
@@ -99,12 +99,16 @@ Phase1a(b) == /\ Send([type |-> "1a", bal |-> b])
 (* b and sends a phase 1b message to the leader containing the values of   *)
 (* maxVBal[a] and maxVal[a].                                               *)
 (***************************************************************************)
-Phase1b(a) == /\ \E m \in msgs : 
+Phase1b(a, p) == /\ \E m \in msgs :
+                  /\ m.proposer = p
                   /\ m.type = "1a"
+                  \* Strictly greater than.
                   /\ m.bal > maxBal[a]
+                  \* Greater than or equal.
+                  \* /\ m.bal >= maxBal[a]
                   /\ maxBal' = [maxBal EXCEPT ![a] = m.bal]
                   /\ Send([type |-> "1b", acc |-> a, bal |-> m.bal, 
-                            mbal |-> maxVBal[a], mval |-> maxVal[a]])
+                            mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p])
               /\ UNCHANGED <<maxVBal, maxVal>>
 
 (***************************************************************************)
@@ -127,19 +131,20 @@ Phase1b(a) == /\ \E m \in msgs :
 (* can vote for v in ballot b, unless it has already set maxBal[a]         *)
 (* greater than b (thereby promising not to vote in ballot b).             *)
 (***************************************************************************)
-Phase2a(b, v) ==
-  /\ ~ \E m \in msgs : m.type = "2a" /\ m.bal = b
+Phase2a(b, v, p) ==
+  /\ ~ \E m \in msgs : m.type = "2a" /\ m.bal = b /\ m.proposer = p
   /\ \E Q \in Quorum :
         LET Q1b == {m \in msgs : /\ m.type = "1b"
                                  /\ m.acc \in Q
-                                 /\ m.bal = b}
+                                 /\ m.bal = b
+                                 /\ m.proposer = p}
             Q1bv == {m \in Q1b : m.mbal \geq 0}
         IN  /\ \A a \in Q : \E m \in Q1b : m.acc = a 
             /\ \/ Q1bv = {}
                \/ \E m \in Q1bv : 
                     /\ m.mval = v
                     /\ \A mm \in Q1bv : m.mbal \geq mm.mbal 
-  /\ Send([type |-> "2a", bal |-> b, val |-> v])
+  /\ Send([type |-> "2a", bal |-> b, val |-> v, proposer |-> p]) 
   /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
   
 (***************************************************************************)
@@ -157,7 +162,7 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
                               /\ maxVBal' = [maxVBal EXCEPT ![a] = m.bal] 
                               /\ maxVal' = [maxVal EXCEPT ![a] = m.val]
                               /\ Send([type |-> "2b", acc |-> a,
-                                       bal |-> m.bal, val |-> m.val]) 
+                                       bal |-> m.bal, val |-> m.val, proposer |-> None]) 
 
 \* Accept a proposal even if it is lower than the highest proposal you've
 \* responded to in a PREPARE phase.
@@ -180,17 +185,13 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
 (***************************************************************************)
 (* Below are defined the next-state action and the complete spec.          *)
 (***************************************************************************)
-Next == \/ \E b \in Ballot : \/ Phase1a(b)
-                             \/ \E v \in Value : Phase2a(b, v)
-        \/ \E a \in Acceptor : Phase1b(a) \/ Phase2b(a)
+Next == \/ \E b \in Ballot : \E p \in Proposer : 
+                                \/ Phase1a(b, p)
+                             \/ \E v \in Value : Phase2a(b, v, p)
+        \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) \/ Phase2b(a)
 
 Spec == Init /\ [][Next]_vars
 ----------------------------------------------------------------------------
-(***************************************************************************)
-(* We now define the refinement mapping under which this algorithm         *)
-(* implements the specification in module Voting.                          *)
-(***************************************************************************)
-
 (***************************************************************************)
 (* As we observed, votes are registered by sending phase 2b messages.  So  *)
 (* the array `votes' describing the votes cast by the acceptors is defined *)
