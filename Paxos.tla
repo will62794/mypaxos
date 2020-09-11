@@ -103,9 +103,9 @@ Phase1b(a, p) == /\ \E m \in msgs :
                   /\ m.proposer = p
                   /\ m.type = "1a"
                   \* Strictly greater than.
-                  /\ m.bal > maxBal[a]
+                  \* /\ m.bal > maxBal[a]
                   \* Greater than or equal.
-                  \* /\ m.bal >= maxBal[a]
+                  /\ m.bal >= maxBal[a]
                   /\ maxBal' = [maxBal EXCEPT ![a] = m.bal]
                   /\ Send([type |-> "1b", acc |-> a, bal |-> m.bal, 
                             mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p])
