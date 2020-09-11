@@ -164,16 +164,6 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
                               /\ Send([type |-> "2b", acc |-> a,
                                        bal |-> m.bal, val |-> m.val, proposer |-> None]) 
 
-\* Accept a proposal even if it is lower than the highest proposal you've
-\* responded to in a PREPARE phase.
-\*Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
-\*                              \*/\ m.bal \geq maxBal[a]
-\*                              /\ maxBal' = IF m.bal > maxBal[a] THEN [maxBal EXCEPT ![a] = m.bal] ELSE maxBal 
-\*                              /\ maxVBal' = IF m.bal > maxVBal[a] THEN [maxVBal EXCEPT ![a] = m.bal] ELSE maxVBal 
-\*                              /\ maxVal' = IF m.bal > maxVBal[a] THEN [maxVal EXCEPT ![a] = m.val] ELSE maxVal
-\*                              /\ Send([type |-> "2b", acc |-> a,
-\*                                       bal |-> m.bal, val |-> m.val])
-
 (***************************************************************************)
 (* In an implementation, there will be learner processes that learn from   *)
 (* the phase 2b messages if a value has been chosen.  The learners are     *)
@@ -208,38 +198,4 @@ ChosenAt(b, v) == \E Q \in Quorum : \A a \in Q : VotedFor(a, b, v)
 
 chosen == {v \in Value : \E b \in Ballot : ChosenAt(b, v)}
                                                    
-                                                   
-                                                   
-                                                   
-                                                   
-                                                   
-(***************************************************************************)
-(* We now instantiate module Voting, substituting the constants Value,     *)
-(* Acceptor, and Quorum declared in this module for the corresponding      *)
-(* constants of that module Voting, and substituting the variable maxBal   *)
-(* and the defined state function `votes' for the correspondingly-named    *)
-(* variables of module Voting.                                             *)
-(***************************************************************************)
-\*V == INSTANCE Voting 
-\*
-\*THEOREM Spec => V!Spec
------------------------------------------------------------------------------
-(***************************************************************************)
-(* Here is a first attempt at an inductive invariant used to prove this    *)
-(* theorem.                                                                *)
-(***************************************************************************)
-\*Inv == /\ TypeOK
-\*       /\ \A a \in Acceptor : IF maxVBal[a] = -1
-\*                                THEN maxVal[a] = None
-\*                                ELSE <<maxVBal[a], maxVal[a]>> \in votes[a]
-\*       /\ \A m \in msgs : 
-\*             /\ (m.type = "1b") => /\ maxBal[m.acc] \geq m.bal
-\*                                   /\ (m.mbal \geq 0) =>  
-\*                                       <<m.mbal, m.mval>> \in votes[m.acc]
-\*             /\ (m.type = "2a") => /\ \E Q \in Quorum : 
-\*                                         V!ShowsSafeAt(Q, m.bal, m.val)
-\*                                   /\ \A mm \in msgs : /\ mm.type = "2a"
-\*                                                       /\ mm.bal = m.bal
-\*                                                       => mm.val = m.val
-\*       /\ V!Inv
 ============================================================================
