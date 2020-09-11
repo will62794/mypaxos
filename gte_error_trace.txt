@@ -1,0 +1,327 @@
+1: <Initial predicate>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = {}
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+2: <Phase1a line 93, col 18 to line 94, col 57 of module Paxos>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = {[type |-> "1a", bal |-> 1, proposer |-> p1]}
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+3: <Phase1a line 93, col 18 to line 94, col 57 of module Paxos>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+4: <Phase1b line 102, col 18 to line 112, col 46 of module Paxos>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> -1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+5: <Phase1b line 102, col 18 to line 112, col 46 of module Paxos>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> -1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+6: <Phase1b line 102, col 18 to line 112, col 46 of module Paxos>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+7: <Phase2a line 135, col 3 to line 148, col 42 of module Paxos>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, proposer |-> p1],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+8: <Phase2b line 159, col 15 to line 165, col 88 of module Paxos>
+/\ maxVBal = (a1 :> 1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, proposer |-> p1],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, proposer |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ] }
+/\ maxVal = (a1 :> v1 @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+9: <Phase1b line 102, col 18 to line 112, col 46 of module Paxos>
+/\ maxVBal = (a1 :> 1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, proposer |-> p1],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, proposer |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ] }
+/\ maxVal = (a1 :> v1 @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+10: <Phase2a line 135, col 3 to line 148, col 42 of module Paxos>
+/\ maxVBal = (a1 :> 1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, proposer |-> p1],
+  [type |-> "2a", bal |-> 1, val |-> v2, proposer |-> p2],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, proposer |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ] }
+/\ maxVal = (a1 :> v1 @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+11: <Phase2b line 159, col 15 to line 165, col 88 of module Paxos>
+/\ maxVBal = (a1 :> 1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, proposer |-> p1],
+  [type |-> "2a", bal |-> 1, val |-> v2, proposer |-> p2],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, proposer |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v2, proposer |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ] }
+/\ maxVal = (a1 :> v2 @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+12: <Phase2b line 159, col 15 to line 165, col 88 of module Paxos>
+/\ maxVBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, proposer |-> p1],
+  [type |-> "2a", bal |-> 1, val |-> v2, proposer |-> p2],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, proposer |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v2, proposer |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a2, val |-> v1, proposer |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ] }
+/\ maxVal = (a1 :> v2 @@ a2 :> v1 @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+13: <Phase2b line 159, col 15 to line 165, col 88 of module Paxos>
+/\ maxVBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 1, proposer |-> p1],
+  [type |-> "1a", bal |-> 1, proposer |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, proposer |-> p1],
+  [type |-> "2a", bal |-> 1, val |-> v2, proposer |-> p2],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, proposer |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v2, proposer |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a2, val |-> v1, proposer |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a2, val |-> v2, proposer |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    proposer |-> p2 ] }
+/\ maxVal = (a1 :> v2 @@ a2 :> v2 @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
