@@ -257,6 +257,14 @@ NextUnchanged == UNCHANGED vars
 
 K == \A ACCI \in Acceptor : (\E m \in msgs : m.bal >= maxBal[ACCI]) \/ ((maxVBal[ACCI] = -1) /\ (TRUE))
 
+Alias == [
+    maxBal  |-> maxBal,
+    maxVBal  |-> maxVBal,
+    maxVal  |-> maxVal,
+    msgs  |-> msgs,
+    chosen  |-> chosen    
+]
+
 (***************************************************************************)
 (* We now instantiate module Voting, substituting the constants Value,     *)
 (* Acceptor, and Quorum declared in this module for the corresponding      *)
