@@ -1,0 +1,181 @@
+TLC2 Version 2.18 of 20 March 2023 (rev: 3ea3222)
+Warning: Please run the Java VM which executes TLC with a throughput optimized garbage collector by passing the "-XX:+UseParallelGC" property.
+(Use the -nowarning option to disable this warning.)
+Running breadth-first search Model-Checking with fp 89 and seed -6714587134156763475 with 6 workers on 8 cores with 3980MB heap and 64MB offheap memory [pid: 391003] (Linux 5.15.90.1-microsoft-standard-WSL2 amd64, Private Build 17.0.8 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /home/willyschultz/mypaxos/PaxosRollback.tla
+Parsing file /tmp/Integers.tla
+Parsing file /tmp/FiniteSets.tla
+Parsing file /tmp/TLC.tla
+Parsing file /tmp/Randomization.tla
+Parsing file /tmp/Naturals.tla
+Parsing file /tmp/Sequences.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Randomization
+Semantic processing of module PaxosRollback
+Starting... (2023-08-07 01:46:58)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2023-08-07 01:46:58.
+Error: Invariant Inv is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = {}
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+State 2: <Phase1a line 107, col 15 to line 108, col 54 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = {[type |-> "1a", bal |-> 0]}
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+State 3: <Phase1a line 107, col 15 to line 108, col 54 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = {[type |-> "1a", bal |-> 0], [type |-> "1a", bal |-> 2]}
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+State 4: <Phase1b line 116, col 15 to line 122, col 46 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 2 @@ a2 :> -1 @@ a3 :> -1)
+
+State 5: <Phase1b line 116, col 15 to line 122, col 46 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 2 @@ a2 :> 2 @@ a3 :> -1)
+
+State 6: <Phase2a line 152, col 3 to line 160, col 42 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 2 @@ a2 :> 2 @@ a3 :> -1)
+
+State 7: <Phase1b line 116, col 15 to line 122, col 46 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "1b", bal |-> 0, acc |-> a3, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 2 @@ a2 :> 2 @@ a3 :> 0)
+
+State 8: <Rollback line 185, col 5 to line 189, col 21 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "1b", bal |-> 0, acc |-> a3, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> -1 @@ a2 :> 2 @@ a3 :> 0)
+
+State 9: <Phase1b line 116, col 15 to line 122, col 46 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "1b", bal |-> 0, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 0, acc |-> a3, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 0 @@ a2 :> 2 @@ a3 :> 0)
+
+State 10: <Phase2a line 152, col 3 to line 160, col 42 of module PaxosRollback>
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 0, val |-> v2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "1b", bal |-> 0, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 0, acc |-> a3, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 0 @@ a2 :> 2 @@ a3 :> 0)
+
+State 11: <Phase2b line 171, col 15 to line 177, col 69 of module PaxosRollback>
+/\ maxVal = (a1 :> v2 @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> 0 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 0, val |-> v2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "2b", bal |-> 0, acc |-> a1, val |-> v2],
+  [type |-> "1b", bal |-> 0, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 0, acc |-> a3, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 0 @@ a2 :> 2 @@ a3 :> 0)
+
+State 12: <Phase2b line 171, col 15 to line 177, col 69 of module PaxosRollback>
+/\ maxVal = (a1 :> v1 @@ a2 :> None @@ a3 :> None)
+/\ maxVBal = (a1 :> 2 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 0, val |-> v2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "2b", bal |-> 0, acc |-> a1, val |-> v2],
+  [type |-> "2b", bal |-> 2, acc |-> a1, val |-> v1],
+  [type |-> "1b", bal |-> 0, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 0, acc |-> a3, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 2 @@ a2 :> 2 @@ a3 :> 0)
+
+State 13: <Phase2b line 171, col 15 to line 177, col 69 of module PaxosRollback>
+/\ maxVal = (a1 :> v1 @@ a2 :> None @@ a3 :> v2)
+/\ maxVBal = (a1 :> 2 @@ a2 :> -1 @@ a3 :> 0)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 0, val |-> v2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "2b", bal |-> 0, acc |-> a1, val |-> v2],
+  [type |-> "2b", bal |-> 0, acc |-> a3, val |-> v2],
+  [type |-> "2b", bal |-> 2, acc |-> a1, val |-> v1],
+  [type |-> "1b", bal |-> 0, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 0, acc |-> a3, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 2 @@ a2 :> 2 @@ a3 :> 0)
+
+State 14: <Phase2b line 171, col 15 to line 177, col 69 of module PaxosRollback>
+/\ maxVal = (a1 :> v1 @@ a2 :> None @@ a3 :> v1)
+/\ maxVBal = (a1 :> 2 @@ a2 :> -1 @@ a3 :> 2)
+/\ msgs = { [type |-> "1a", bal |-> 0],
+  [type |-> "1a", bal |-> 2],
+  [type |-> "2a", bal |-> 0, val |-> v2],
+  [type |-> "2a", bal |-> 2, val |-> v1],
+  [type |-> "2b", bal |-> 0, acc |-> a1, val |-> v2],
+  [type |-> "2b", bal |-> 0, acc |-> a3, val |-> v2],
+  [type |-> "2b", bal |-> 2, acc |-> a1, val |-> v1],
+  [type |-> "2b", bal |-> 2, acc |-> a3, val |-> v1],
+  [type |-> "1b", bal |-> 0, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 0, acc |-> a3, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a1, mbal |-> -1, mval |-> None],
+  [type |-> "1b", bal |-> 2, acc |-> a2, mbal |-> -1, mval |-> None] }
+/\ maxBal = (a1 :> 2 @@ a2 :> 2 @@ a3 :> 2)
+
+140220 states generated, 24475 distinct states found, 11533 states left on queue.
+The depth of the complete state graph search is 14.
+The average outdegree of the complete state graph is 2 (minimum is 0, the maximum 9 and the 95th percentile is 5).
+Finished in 03s at (2023-08-07 01:47:00)
