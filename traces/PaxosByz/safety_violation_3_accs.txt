@@ -1,0 +1,322 @@
+Starting... (2023-08-22 20:27:56)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2023-08-22 20:27:56.
+Progress(9) at 2023-08-22 20:27:59: 144,640 states generated (144,640 s/min), 28,583 distinct states found (28,583 ds/min), 21,153 states left on queue.
+Progress(12) at 2023-08-22 20:28:59: 3,953,770 states generated (3,809,130 s/min), 517,029 distinct states found (488,446 ds/min), 290,859 states left on queue.
+Progress(13) at 2023-08-22 20:29:59: 7,756,916 states generated (3,803,146 s/min), 969,909 distinct states found (452,880 ds/min), 522,495 states left on queue.
+Progress(13) at 2023-08-22 20:30:59: 11,565,352 states generated (3,808,436 s/min), 1,423,104 distinct states found (453,195 ds/min), 744,342 states left on queue.
+Error: Invariant Inv is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = {}
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+State 2: <Phase1a(0,p1) line 93, col 18 to line 94, col 57 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = {[type |-> "1a", bal |-> 0, prop |-> p1]}
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+State 3: <Phase1a(1,p2) line 93, col 18 to line 94, col 57 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+
+State 4: <Phase1b(a1,p1,TRUE) line 103, col 5 to line 117, col 40 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 0 @@ a2 :> -1 @@ a3 :> -1)
+
+State 5: <Phase1b(a1,p2,TRUE) line 103, col 5 to line 117, col 40 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> -1 @@ a3 :> -1)
+
+State 6: <Phase1b(a2,p1,TRUE) line 103, col 5 to line 117, col 40 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 0 @@ a3 :> -1)
+
+State 7: <Phase1b(a2,p2,TRUE) line 103, col 5 to line 117, col 40 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+State 8: <Phase2a(1,v1,p2) line 140, col 3 to line 153, col 42 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> -1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, prop |-> p2],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> None)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> -1)
+
+State 9: <Phase2b(a3) line 164, col 15 to line 170, col 84 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> 1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, prop |-> p2],
+  [type |-> "2b", bal |-> 1, acc |-> a3, val |-> v1, prop |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> v1)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> 1)
+
+State 10: <Phase2a(2,v2,p1) line 140, col 3 to line 153, col 42 of module PaxosByz>
+/\ maxVBal = (a1 :> -1 @@ a2 :> -1 @@ a3 :> 1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, prop |-> p2],
+  [type |-> "2a", bal |-> 2, val |-> v2, prop |-> p1],
+  [type |-> "2b", bal |-> 1, acc |-> a3, val |-> v1, prop |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> None @@ a2 :> None @@ a3 :> v1)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> 1)
+
+State 11: <Phase2b(a1) line 164, col 15 to line 170, col 84 of module PaxosByz>
+/\ maxVBal = (a1 :> 1 @@ a2 :> -1 @@ a3 :> 1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, prop |-> p2],
+  [type |-> "2a", bal |-> 2, val |-> v2, prop |-> p1],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, prop |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a3, val |-> v1, prop |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> v1 @@ a2 :> None @@ a3 :> v1)
+/\ maxBal = (a1 :> 1 @@ a2 :> 1 @@ a3 :> 1)
+
+State 12: <Phase2b(a1) line 164, col 15 to line 170, col 84 of module PaxosByz>
+/\ maxVBal = (a1 :> 2 @@ a2 :> -1 @@ a3 :> 1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, prop |-> p2],
+  [type |-> "2a", bal |-> 2, val |-> v2, prop |-> p1],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, prop |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a3, val |-> v1, prop |-> None],
+  [type |-> "2b", bal |-> 2, acc |-> a1, val |-> v2, prop |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> v2 @@ a2 :> None @@ a3 :> v1)
+/\ maxBal = (a1 :> 2 @@ a2 :> 1 @@ a3 :> 1)
+
+State 13: <Phase2b(a2) line 164, col 15 to line 170, col 84 of module PaxosByz>
+/\ maxVBal = (a1 :> 2 @@ a2 :> 2 @@ a3 :> 1)
+/\ msgs = { [type |-> "1a", bal |-> 0, prop |-> p1],
+  [type |-> "1a", bal |-> 1, prop |-> p2],
+  [type |-> "2a", bal |-> 1, val |-> v1, prop |-> p2],
+  [type |-> "2a", bal |-> 2, val |-> v2, prop |-> p1],
+  [type |-> "2b", bal |-> 1, acc |-> a1, val |-> v1, prop |-> None],
+  [type |-> "2b", bal |-> 1, acc |-> a3, val |-> v1, prop |-> None],
+  [type |-> "2b", bal |-> 2, acc |-> a1, val |-> v2, prop |-> None],
+  [type |-> "2b", bal |-> 2, acc |-> a2, val |-> v2, prop |-> None],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 1,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p2 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a1,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ],
+  [ type |-> "1b",
+    bal |-> 2,
+    acc |-> a2,
+    mbal |-> -1,
+    mval |-> None,
+    prop |-> p1 ] }
+/\ maxVal = (a1 :> v2 @@ a2 :> v2 @@ a3 :> v1)
+/\ maxBal = (a1 :> 2 @@ a2 :> 2 @@ a3 :> 1)
