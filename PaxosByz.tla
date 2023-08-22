@@ -15,8 +15,6 @@ ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
       
 Ballot ==  Nat
 
-william == \E x \in {1,2,3} : x = 3
-
 None == CHOOSE v : v \notin Ballot
   (*************************************************************************)
   (* An unspecified value that is not a ballot number.                     *)
@@ -37,7 +35,8 @@ VARIABLE maxBal,
          maxVBal, \* <<maxVBal[a], maxVal[a]>> is the vote with the largest
          maxVal,    \* ballot number cast by a; it equals <<-1, None>> if
                     \* a has not cast any vote.
-         msgs     \* The set of all messages that have been sent.
+         msgs,     \* The set of all messages that have been sent.
+         byzAccs   \* The set of acceptors that can exhibit Byzantine faults.
 
 (***************************************************************************)
 (* NOTE:                                                                   *)
@@ -57,7 +56,7 @@ VARIABLE maxBal,
 (* retransmitted if lost) to guarantee progress.                           *)
 (***************************************************************************)
 
-vars == <<maxBal, maxVBal, maxVal, msgs>>
+vars == <<maxBal, maxVBal, maxVal, msgs, byzAccs>>
   (*************************************************************************)
   (* It is convenient to define some identifier to be the tuple of all     *)
   (* variables.  I like to use the identifier `vars'.                      *)
@@ -70,12 +69,17 @@ TypeOK == /\ maxBal \in [Acceptor -> Ballot \cup {-1}]
           /\ maxVBal \in [Acceptor -> Ballot \cup {-1}]
           /\ maxVal \in [Acceptor -> Value \cup {None}]
           /\ msgs \subseteq Message
+          /\ byzAccs \subseteq Acceptor
           
+
+\* Limits the maximum number of Byzantine faulty nodes.
+MaxByzFaults == 1
 
 Init == /\ maxBal = [a \in Acceptor |-> -1]
         /\ maxVBal = [a \in Acceptor |-> -1]
         /\ maxVal = [a \in Acceptor |-> None]
         /\ msgs = {}
+        /\ byzAccs \in SUBSET Acceptor /\ Cardinality(byzAccs) <= MaxByzFaults
 
 (***************************************************************************)
 (* The actions.  We begin with the subaction (an action that will be used  *)
@@ -91,7 +95,7 @@ Send(m) == msgs' = msgs \cup {m}
 (* m with m.type = "1a") that begins ballot b.                             *)
 (***************************************************************************)
 Phase1a(b, p) == /\ Send([type |-> "1a", bal |-> b, prop |-> p])
-                 /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
+                 /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
                  
 (***************************************************************************)
 (* Upon receipt of a ballot b phase 1a message, acceptor a can perform a   *)
@@ -99,7 +103,7 @@ Phase1a(b, p) == /\ Send([type |-> "1a", bal |-> b, prop |-> p])
 (* b and sends a phase 1b message to the leader containing the values of   *)
 (* maxVBal[a] and maxVal[a].                                               *)
 (***************************************************************************)
-Phase1b(a, p, byz) == 
+Phase1b(a, p) == 
     \E m \in msgs :
     \E byzBal \in Ballot :
         /\ m.prop = p
@@ -110,11 +114,11 @@ Phase1b(a, p, byz) ==
                 acc |-> a, 
                 \* If this acceptor is Byzantine, then it can (maliciously) 
                 \* send back some arbitrary ballot number.
-                bal |-> IF byz THEN byzBal ELSE m.bal, 
+                bal |-> IF a \in byzAccs THEN byzBal ELSE m.bal, 
                 mbal |-> maxVBal[a], 
                 mval |-> maxVal[a], 
                 prop |-> p])
-        /\ UNCHANGED <<maxVBal, maxVal>>
+        /\ UNCHANGED <<maxVBal, maxVal, byzAccs>>
 
 (***************************************************************************)
 (* The Phase2a(b, v) action can be performed by the ballot b leader if two *)
@@ -150,7 +154,7 @@ Phase2a(b, v, p) ==
                     /\ m.mval = v
                     /\ \A mm \in Q1bv : m.mbal \geq mm.mbal 
   /\ Send([type |-> "2a", bal |-> b, val |-> v, prop |-> p]) 
-  /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
+  /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
   
 (***************************************************************************)
 (* The Phase2b(a) action is performed by acceptor a upon receipt of a      *)
@@ -168,6 +172,7 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
                               /\ maxVal' = [maxVal EXCEPT ![a] = m.val]
                               /\ Send([type |-> "2b", acc |-> a,
                                        bal |-> m.bal, val |-> m.val, prop |-> None]) 
+                              /\ UNCHANGED byzAccs
 
 (***************************************************************************)
 (* In an implementation, there will be learner processes that learn from   *)
@@ -182,7 +187,7 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
 (***************************************************************************)
 Next == 
     \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
-    \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p, TRUE)
+    \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p)
     \/ \E b \in Ballot : \E p \in Proposer :  \E v \in Value : Phase2a(b, v, p)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
@@ -208,5 +213,14 @@ Inv == Cardinality(chosen) <= 1
 
 
 Symmetry == Permutations(Acceptor) \cup Permutations(Value) \cup Permutations(Proposer)
+
+Alias == [
+    maxBal  |-> maxBal,
+    maxVBal  |-> maxVBal,
+    maxVal  |-> maxVal,
+    msgs  |-> msgs,
+    byzAccs |-> byzAccs,
+    chosen  |-> chosen    
+]
 
 ============================================================================
