@@ -117,7 +117,8 @@ Phase1b(a, p) ==
                 bal |-> IF a \in byzAccs THEN byzBal ELSE m.bal, 
                 mbal |-> maxVBal[a], 
                 mval |-> maxVal[a], 
-                prop |-> p])
+                prop |-> p,
+                byz |-> a \in byzAccs])
         /\ UNCHANGED <<maxVBal, maxVal, byzAccs>>
 
 (***************************************************************************)
