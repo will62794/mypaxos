@@ -94,7 +94,8 @@ BroadcastPost(sender) == msgs' = msgs \cup {[
 
 \* Allow any node to initiate a proposal to try to get it accepted.
 Phase1a(b, n) == 
-    /\ UNCHANGED <<maxBal, maxVBal, maxVal, chosen>>
+    /\ UNCHANGED <<maxVBal, maxVal, chosen>>
+    /\ maxBal' = [maxBal EXCEPT ![n] = b]
     /\ BroadcastPost(n)
  
 (***************************************************************************)
@@ -141,7 +142,7 @@ Phase2a(b, v, n) ==
         LET Q1b == {m \in msgs : \*/\ m.type = "1b"
                                  /\ m.from \in Q
                                  /\ m.maxBal = b}
-            Q1bv == {m \in Q1b : m.maxBal \geq 0}
+            Q1bv == {m \in Q1b : m.maxVBal \geq 0}
         IN  /\ \A a \in Q : \E m \in Q1b : m.from = a 
             /\ \/ Q1bv = {}
                \/ \E m \in Q1bv : 
