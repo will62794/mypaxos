@@ -9,6 +9,7 @@ EXTENDS Integers, FiniteSets
 (* The constant parameters and the set Ballots are the same as in Voting.  *)
 (***************************************************************************)
 CONSTANT Value, Acceptor, Quorum, Proposer
+CONSTANT None
 
 ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
                            /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
@@ -17,7 +18,6 @@ Ballot ==  Nat
 
 william == \E x \in {1,2,3} : x = 3
 
-None == CHOOSE v : v \notin Ballot
   (*************************************************************************)
   (* An unspecified value that is not a ballot number.                     *)
   (*************************************************************************)
