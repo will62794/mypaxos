@@ -36,6 +36,7 @@ VARIABLE maxBal,
          maxVBal, \* <<maxVBal[a], maxVal[a]>> is the vote with the largest
          maxVal,    \* ballot number cast by a; it equals <<-1, None>> if
                     \* a has not cast any vote.
+         chosen,    \* chosen value at each node.
          msgs     \* The set of all messages that have been sent.
 
 (***************************************************************************)
@@ -56,7 +57,7 @@ VARIABLE maxBal,
 (* retransmitted if lost) to guarantee progress.                           *)
 (***************************************************************************)
 
-vars == <<maxBal, maxVBal, maxVal, msgs>>
+vars == <<maxBal, maxVBal, maxVal, chosen, msgs>>
   (*************************************************************************)
   (* It is convenient to define some identifier to be the tuple of all     *)
   (* variables.  I like to use the identifier `vars'.                      *)
@@ -74,6 +75,7 @@ TypeOK == /\ maxBal \in [Node -> Ballot \cup {-1}]
 Init == /\ maxBal = [a \in Node |-> -1]
         /\ maxVBal = [a \in Node |-> -1]
         /\ maxVal = [a \in Node |-> None]
+        /\ chosen = [n \in Node |-> None]
         /\ msgs = {}
 
 (***************************************************************************)
@@ -90,14 +92,9 @@ BroadcastPost(sender) == msgs' = msgs \cup {[
 ]}
 
 
-(***************************************************************************)
-(* In an implementation, there will be a leader process that orchestrates  *)
-(* a ballot.  The ballot b leader performs actions Phase1a(b) and          *)
-(* Phase2a(b).  The Phase1a(b) action sends a phase 1a message (a message  *)
-(* m with m.type = "1a") that begins ballot b.                             *)
-(***************************************************************************)
+\* Allow any node to initiate a proposal to try to get it accepted.
 Phase1a(b, n) == 
-    /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
+    /\ UNCHANGED <<maxBal, maxVBal, maxVal, chosen>>
     /\ BroadcastPost(n)
  
 (***************************************************************************)
@@ -114,7 +111,7 @@ Phase1b(n) ==
         /\ maxBal' = [maxBal EXCEPT ![n] = m.maxBal]
         \* /\ Send([type |-> "1b", acc |-> a, bal |-> m.bal, 
                 \* mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p])
-        /\ UNCHANGED <<maxVBal, maxVal>>
+        /\ UNCHANGED <<maxVBal, maxVal, chosen>>
         /\ BroadcastPost(n)
 
 
@@ -150,9 +147,8 @@ Phase2a(b, v, n) ==
                \/ \E m \in Q1bv : 
                     /\ m.maxVal = v
                     /\ \A mm \in Q1bv : m.maxVBal \geq mm.maxVBal 
-\*   /\ BroadcastPost(n)
 \*   /\ Send([type |-> "2a", bal |-> b, val |-> v, proposer |-> n]) 
-  /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
+  /\ UNCHANGED <<maxBal, maxVBal, maxVal, chosen>>
   /\ BroadcastPost(n)
 
 (***************************************************************************)
@@ -164,15 +160,18 @@ Phase2a(b, v, n) ==
 (* phase 2b message announcing its vote.  It also sets maxBal[a] to the    *)
 (* message's.  ballot number                                               *)
 (***************************************************************************)
-Phase2b(a) == 
+Phase2b(n) == 
+    \* Why not just directly tally quorum needed to go ahead and complete 2b?
+    \* Proposers typically play a kind of "information aggregator" role in standard Paxos model (?)
     \E m \in msgs : 
-        /\ m.type = "2a"
-        /\ m.bal \geq maxBal[a]
-        /\ maxBal' = [maxBal EXCEPT ![a] = m.bal] 
-        /\ maxVBal' = [maxVBal EXCEPT ![a] = m.bal] 
-        /\ maxVal' = [maxVal EXCEPT ![a] = m.val]
-        /\ Send([type |-> "2b", acc |-> a,
-                bal |-> m.bal, val |-> m.val, proposer |-> None])
+        \* /\ m.type = "2a"
+        /\ m.maxBal \geq maxBal[n]
+        \* /\ maxBal' = [maxBal EXCEPT ![n] = m.bal] 
+        \* /\ maxVBal' = [maxVBal EXCEPT ![n] = m.bal] 
+        \* /\ maxVal' = [maxVal EXCEPT ![n] = m.val]
+        \* /\ Send([type |-> "2b", acc |-> a,
+                \* bal |-> m.bal, val |-> m.val, proposer |-> None])
+        /\ BroadcastPost(n)
      
 
 (***************************************************************************)
@@ -208,7 +207,11 @@ VotedFor(a, b, v) == <<b, v>> \in votes[a]
 
 ChosenAt(b, v) == \E Q \in Quorum : \A a \in Q : VotedFor(a, b, v)
 
-chosen == {v \in Value : \E b \in Ballot : ChosenAt(b, v)}
+\* chosen == {v \in Value : \E b \in Ballot : ChosenAt(b, v)}
+
+\* If two nodes have chosen values, they must be the same.
+Safety == \A n,n2 \in Node : 
+            (chosen[n] # None /\ chosen[n2] # None) => chosen[n] = chosen[n2]
 
 \* Inv == Cardinality(chosen) <= 1 
 Inv == Cardinality(msgs) <= 2
