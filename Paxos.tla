@@ -10,14 +10,11 @@ EXTENDS Integers, FiniteSets
 (***************************************************************************)
 CONSTANT Value, Acceptor, Quorum, Proposer
 CONSTANT None
+CONSTANT Ballot
 
 ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
                            /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
       
-Ballot ==  Nat
-
-william == \E x \in {1,2,3} : x = 3
-
   (*************************************************************************)
   (* An unspecified value that is not a ballot number.                     *)
   (*************************************************************************)
