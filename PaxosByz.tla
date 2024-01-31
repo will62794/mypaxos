@@ -182,6 +182,7 @@ Phase2a(b, v, p, Q) ==
     /\ \/ Q1bv = {}
        \* TODO: Use voting to ensure safety in presence of limited # of Byzantine acceptors.
        \/ ChosenValue1b(v, Q1bv)
+    \*    \/ ChosenValue1bMajorityVote(v, Q1bv)
     /\ Send([type |-> "2a", bal |-> b, val |-> v, prop |-> p]) 
     /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
   
