@@ -16,9 +16,11 @@ CONSTANT NumByzFaults
 \* The quorum system used.
 CONSTANT Quorum
 
-\* Majority quorums: |Q| > 1/2 * N
-QuorumMaj == {x \in (SUBSET Acceptor) : Cardinality(x) * 2 > Cardinality(Acceptor)}
+MajQuorums(Q) == {x \in (SUBSET Q) : Cardinality(x) * 2 > Cardinality(Q)}
 
+\* Majority quorums: |Q| > 1/2 * N
+QuorumMaj == MajQuorums(Acceptor)
+    
 \* Supermajority quorums: |Q| > 2/3 * N
 QuorumSuperMaj == {x \in (SUBSET Acceptor) : Cardinality(x) * 3 > Cardinality(Acceptor) * 2}
 
@@ -139,6 +141,15 @@ ChosenValue1b(v, Q1bv) ==
     \E m \in Q1bv : 
         /\ m.mval = v \* the value we pick is equal to the one in the 1b message.
         /\ \A mj \in Q1bv : m.mbal >= mj.mbal \* it is the highest 1b proposal in the quorum.
+
+\* TODO: Finish stating this correctly. Idea is can eventually be 
+\* used to tolerate Byzantine acceptors.
+ChosenValue1bMajorityVote(v, Q1bv) == 
+    \E Q \in MajQuorums(Q1bv) :
+    \A m \in Q1bv :
+        /\ m.mval = v \* the value we pick is equal to the one in the 1b message.
+        \* /\ \A mj \in Q1bv : m.mbal >= mj.mbal \* it is the highest 1b proposal in the quorum.
+
 
 (***************************************************************************)
 (* The Phase2a(b, v) action can be performed by the ballot b leader if two *)
