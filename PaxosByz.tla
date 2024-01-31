@@ -10,23 +10,22 @@ EXTENDS Integers, FiniteSets, TLC
 (***************************************************************************)
 CONSTANT Value, Acceptor, Proposer, Ballot
 
+\* Determines the number of Byzantine faulty acceptors upfront
+CONSTANT NumByzFaults
+
+\* The quorum system used.
+CONSTANT Quorum
+
 \* Majority quorums: |Q| > 1/2 * N
 QuorumMaj == {x \in (SUBSET Acceptor) : Cardinality(x) * 2 > Cardinality(Acceptor)}
 
 \* Supermajority quorums: |Q| > 2/3 * N
 QuorumSuperMaj == {x \in (SUBSET Acceptor) : Cardinality(x) * 3 > Cardinality(Acceptor) * 2}
 
-\* Select quorum type.
-Quorum == QuorumSuperMaj
-\* Quorum == QuorumMaj
-
 ASSUME PrintT(Quorum)
 
 None == "None"
 
-\* Limits the maximum number of Byzantine faulty nodes.
-NumByzFaults == 1
-  
 (***************************************************************************)
 (* This is a message-passing algorithm, so we begin by defining the set    *)
 (* Message of all possible messages.  The messages are explained below     *)
@@ -165,6 +164,7 @@ Phase2a(b, v, p) ==
             \* the value we propose needs to be equal to the value from the highest 
             \* accepted proposal in the quorum.
             /\ \/ Q1bv = {}
+               \* TODO: Use voting to ensure safety in presence of limited # of Byzantine acceptors.
                \/ \E m \in Q1bv : 
                     /\ m.mval = v \* the value we pick is equal to the one in the 1b message.
                     /\ \A mj \in Q1bv : m.mbal >= mj.mbal \* it is the highest 1b proposal in the quorum.
@@ -187,7 +187,9 @@ Phase2b(a) ==
         /\ maxBal' = [maxBal EXCEPT ![a] = m.bal] 
         /\ maxVBal' = [maxVBal EXCEPT ![a] = m.bal] 
         /\ maxVal' = [maxVal EXCEPT ![a] = m.val]
-        /\ Send([type |-> "2b", acc |-> a, bal |-> m.bal, val |-> m.val, prop |-> None]) 
+        /\ LET 2bmsg == [type |-> "2b", acc |-> a, bal |-> m.bal, val |-> m.val, prop |-> None] IN
+            /\ 2bmsg \notin msgs
+            /\ Send(2bmsg) 
         /\ UNCHANGED byzAccs
 
 (***************************************************************************)
@@ -208,6 +210,7 @@ Next ==
     \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
 Spec == Init /\ [][Next]_vars
+
 ----------------------------------------------------------------------------
 (***************************************************************************)
 (* As we observed, votes are registered by sending phase 2b messages.  So  *)
@@ -225,8 +228,13 @@ ChosenAt(b, v) == \E Q \in Quorum : \A a \in Q : VotedFor(a, b, v)
 
 chosen == {v \in Value : \E b \in Ballot : ChosenAt(b, v)}
                      
+\* Safety property.
 Inv == Cardinality(chosen) <= 1  
 
+
+---------------------------------------------------
+
+\* Model checking stuff.
 
 Symmetry == Permutations(Acceptor) \cup Permutations(Value) \cup Permutations(Proposer)
 
