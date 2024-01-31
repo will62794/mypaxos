@@ -8,7 +8,7 @@ EXTENDS Integers, FiniteSets, TLC
 (***************************************************************************)
 (* The constant parameters and the set Ballots are the same as in Voting.  *)
 (***************************************************************************)
-CONSTANT Value, Acceptor, Proposer
+CONSTANT Value, Acceptor, Proposer, Ballot
 
 \* ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
                         \*    /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
@@ -25,9 +25,7 @@ Quorum == QuorumSuperMaj
 
 ASSUME PrintT(Quorum)
 
-Ballot ==  Nat
-
-None == CHOOSE v : v \notin Ballot
+None == "None"
 
 \* Limits the maximum number of Byzantine faulty nodes.
 NumByzFaults == 3
