@@ -10,9 +10,6 @@ EXTENDS Integers, FiniteSets, TLC
 (***************************************************************************)
 CONSTANT Value, Acceptor, Proposer, Ballot
 
-\* ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
-                        \*    /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
-
 \* Majority quorums: |Q| > 1/2 * N
 QuorumMaj == {x \in (SUBSET Acceptor) : Cardinality(x) * 2 > Cardinality(Acceptor)}
 
@@ -28,7 +25,7 @@ ASSUME PrintT(Quorum)
 None == "None"
 
 \* Limits the maximum number of Byzantine faulty nodes.
-NumByzFaults == 3
+NumByzFaults == 1
   
 (***************************************************************************)
 (* This is a message-passing algorithm, so we begin by defining the set    *)
@@ -116,19 +113,20 @@ Phase1a(b, p) ==
 Phase1b(a, p) == 
     \E m \in msgs :
     \E byzBal \in Ballot :
+    \E byzVal \in Value :
         /\ m.prop = p
         /\ m.type = "1a"
         /\ m.bal > maxBal[a]
         /\ maxBal' = [maxBal EXCEPT ![a] = m.bal]
         /\ Send([type |-> "1b", 
-                acc |-> a, 
-                \* If this acceptor is Byzantine, then it can (maliciously) 
-                \* send back some arbitrary ballot number.
-                bal |-> IF a \in byzAccs THEN byzBal ELSE m.bal, 
-                mbal |-> maxVBal[a], 
-                mval |-> maxVal[a], 
-                prop |-> p,
-                byz |-> a \in byzAccs])
+                 acc |-> a, 
+                 \* If this acceptor is Byzantine, then it can (maliciously) 
+                 \* send back some arbitrary ballot number and value.
+                 bal |-> IF a \in byzAccs THEN byzBal ELSE m.bal, 
+                 mbal |-> IF a \in byzAccs THEN byzBal ELSE maxVBal[a], 
+                 mval |-> IF a \in byzAccs THEN byzVal ELSE maxVal[a], 
+                 prop |-> p,
+                 byz |-> a \in byzAccs])
         /\ UNCHANGED <<maxVBal, maxVal, byzAccs>>
 
 \* The set of phase 1b messages that form a quorum Q in ballot b for proposer p.
