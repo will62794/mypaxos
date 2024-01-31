@@ -8,17 +8,29 @@ EXTENDS Integers, FiniteSets, TLC
 (***************************************************************************)
 (* The constant parameters and the set Ballots are the same as in Voting.  *)
 (***************************************************************************)
-CONSTANT Value, Acceptor, Quorum, Proposer
+CONSTANT Value, Acceptor, Proposer
 
-ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
-                           /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
-      
+\* ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
+                        \*    /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
+
+\* Majority quorums: |Q| > 1/2 * N
+QuorumMaj == {x \in (SUBSET Acceptor) : Cardinality(x) * 2 > Cardinality(Acceptor)}
+
+\* Supermajority quorums: |Q| > 2/3 * N
+QuorumSuperMaj == {x \in (SUBSET Acceptor) : Cardinality(x) * 3 > Cardinality(Acceptor) * 2}
+
+\* Select quorum type.
+Quorum == QuorumSuperMaj
+\* Quorum == QuorumMaj
+
+ASSUME PrintT(Quorum)
+
 Ballot ==  Nat
 
 None == CHOOSE v : v \notin Ballot
-  (*************************************************************************)
-  (* An unspecified value that is not a ballot number.                     *)
-  (*************************************************************************)
+
+\* Limits the maximum number of Byzantine faulty nodes.
+NumByzFaults == 3
   
 (***************************************************************************)
 (* This is a message-passing algorithm, so we begin by defining the set    *)
@@ -72,14 +84,12 @@ TypeOK == /\ maxBal \in [Acceptor -> Ballot \cup {-1}]
           /\ byzAccs \subseteq Acceptor
           
 
-\* Limits the maximum number of Byzantine faulty nodes.
-MaxByzFaults == 1
-
 Init == /\ maxBal = [a \in Acceptor |-> -1]
         /\ maxVBal = [a \in Acceptor |-> -1]
         /\ maxVal = [a \in Acceptor |-> None]
         /\ msgs = {}
-        /\ byzAccs \in SUBSET Acceptor /\ Cardinality(byzAccs) <= MaxByzFaults
+        /\ byzAccs \in SUBSET Acceptor 
+        /\ Cardinality(byzAccs) = NumByzFaults
 
 (***************************************************************************)
 (* The actions.  We begin with the subaction (an action that will be used  *)
@@ -94,8 +104,10 @@ Send(m) == msgs' = msgs \cup {m}
 (* Phase2a(b).  The Phase1a(b) action sends a phase 1a message (a message  *)
 (* m with m.type = "1a") that begins ballot b.                             *)
 (***************************************************************************)
-Phase1a(b, p) == /\ Send([type |-> "1a", bal |-> b, prop |-> p])
-                 /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
+Phase1a(b, p) == 
+    /\ [type |-> "1a", bal |-> b, prop |-> p] \notin msgs
+    /\ Send([type |-> "1a", bal |-> b, prop |-> p])
+    /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
                  
 (***************************************************************************)
 (* Upon receipt of a ballot b phase 1a message, acceptor a can perform a   *)
@@ -121,6 +133,12 @@ Phase1b(a, p) ==
                 byz |-> a \in byzAccs])
         /\ UNCHANGED <<maxVBal, maxVal, byzAccs>>
 
+\* The set of phase 1b messages that form a quorum Q in ballot b for proposer p.
+Q1bMsgs(Q, b, p) == {m \in msgs : /\ m.type = "1b"
+                                  /\ m.acc \in Q
+                                  /\ m.bal = b
+                                  /\ m.prop = p}
+
 (***************************************************************************)
 (* The Phase2a(b, v) action can be performed by the ballot b leader if two *)
 (* conditions are satisfied: (i) it has not already performed a phase 2a   *)
@@ -142,20 +160,20 @@ Phase1b(a, p) ==
 (* greater than b (thereby promising not to vote in ballot b).             *)
 (***************************************************************************)
 Phase2a(b, v, p) ==
-  /\ ~ \E m \in msgs : m.type = "2a" /\ m.bal = b /\ m.prop = p
-  /\ \E Q \in Quorum :
-        LET Q1b == {m \in msgs : /\ m.type = "1b"
-                                 /\ m.acc \in Q
-                                 /\ m.bal = b
-                                 /\ m.prop = p}
-            Q1bv == {m \in Q1b : m.mbal \geq 0}
-        IN  /\ \A a \in Q : \E m \in Q1b : m.acc = a 
+    \* Haven't already sent a phase 2a message.
+    /\ ~ \E m \in msgs : m.type = "2a" /\ m.bal = b /\ m.prop = p
+    /\ \E Q \in Quorum :
+        LET Q1bv == {m \in Q1bMsgs(Q, b, p) : m.mbal >= 0}
+        IN  /\ \A a \in Q : \E m \in Q1bMsgs(Q, b, p) : m.acc = a 
+            \* Either the set of acceptors with previously accepted values is empty, or
+            \* the value we propose needs to be equal to the value from the highest 
+            \* accepted proposal in the quorum.
             /\ \/ Q1bv = {}
                \/ \E m \in Q1bv : 
-                    /\ m.mval = v
-                    /\ \A mm \in Q1bv : m.mbal \geq mm.mbal 
-  /\ Send([type |-> "2a", bal |-> b, val |-> v, prop |-> p]) 
-  /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
+                    /\ m.mval = v \* the value we pick is equal to the one in the 1b message.
+                    /\ \A mj \in Q1bv : m.mbal >= mj.mbal \* it is the highest 1b proposal in the quorum.
+    /\ Send([type |-> "2a", bal |-> b, val |-> v, prop |-> p]) 
+    /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
   
 (***************************************************************************)
 (* The Phase2b(a) action is performed by acceptor a upon receipt of a      *)
@@ -166,14 +184,15 @@ Phase2a(b, v, p) ==
 (* phase 2b message announcing its vote.  It also sets maxBal[a] to the    *)
 (* message's.  ballot number                                               *)
 (***************************************************************************)
-Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
-                              /\ m.bal \geq maxBal[a]
-                              /\ maxBal' = [maxBal EXCEPT ![a] = m.bal] 
-                              /\ maxVBal' = [maxVBal EXCEPT ![a] = m.bal] 
-                              /\ maxVal' = [maxVal EXCEPT ![a] = m.val]
-                              /\ Send([type |-> "2b", acc |-> a,
-                                       bal |-> m.bal, val |-> m.val, prop |-> None]) 
-                              /\ UNCHANGED byzAccs
+Phase2b(a) == 
+    \E m \in msgs : 
+        /\ m.type = "2a"
+        /\ m.bal \geq maxBal[a]
+        /\ maxBal' = [maxBal EXCEPT ![a] = m.bal] 
+        /\ maxVBal' = [maxVBal EXCEPT ![a] = m.bal] 
+        /\ maxVal' = [maxVal EXCEPT ![a] = m.val]
+        /\ Send([type |-> "2b", acc |-> a, bal |-> m.bal, val |-> m.val, prop |-> None]) 
+        /\ UNCHANGED byzAccs
 
 (***************************************************************************)
 (* In an implementation, there will be learner processes that learn from   *)
