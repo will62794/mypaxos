@@ -154,20 +154,19 @@ Q1bMsgs(Q, b, p) == {m \in msgs : /\ m.type = "1b"
 (* can vote for v in ballot b, unless it has already set maxBal[a]         *)
 (* greater than b (thereby promising not to vote in ballot b).             *)
 (***************************************************************************)
-Phase2a(b, v, p) ==
+Phase2a(b, v, p, Q) ==
+    LET Q1bv == {m \in Q1bMsgs(Q, b, p) : m.mbal >= 0} IN
     \* Haven't already sent a phase 2a message.
     /\ ~ \E m \in msgs : m.type = "2a" /\ m.bal = b /\ m.prop = p
-    /\ \E Q \in Quorum :
-        LET Q1bv == {m \in Q1bMsgs(Q, b, p) : m.mbal >= 0}
-        IN  /\ \A a \in Q : \E m \in Q1bMsgs(Q, b, p) : m.acc = a 
-            \* Either the set of acceptors with previously accepted values is empty, or
-            \* the value we propose needs to be equal to the value from the highest 
-            \* accepted proposal in the quorum.
-            /\ \/ Q1bv = {}
-               \* TODO: Use voting to ensure safety in presence of limited # of Byzantine acceptors.
-               \/ \E m \in Q1bv : 
-                    /\ m.mval = v \* the value we pick is equal to the one in the 1b message.
-                    /\ \A mj \in Q1bv : m.mbal >= mj.mbal \* it is the highest 1b proposal in the quorum.
+    /\ \A a \in Q : \E m \in Q1bMsgs(Q, b, p) : m.acc = a 
+    \* Either the set of acceptors with previously accepted values is empty, or
+    \* the value we propose needs to be equal to the value from the highest 
+    \* accepted proposal in the quorum.
+    /\ \/ Q1bv = {}
+       \* TODO: Use voting to ensure safety in presence of limited # of Byzantine acceptors.
+       \/ \E m \in Q1bv : 
+            /\ m.mval = v \* the value we pick is equal to the one in the 1b message.
+            /\ \A mj \in Q1bv : m.mbal >= mj.mbal \* it is the highest 1b proposal in the quorum.
     /\ Send([type |-> "2a", bal |-> b, val |-> v, prop |-> p]) 
     /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
   
@@ -206,7 +205,7 @@ Phase2b(a) ==
 Next == 
     \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p)
-    \/ \E b \in Ballot : \E p \in Proposer :  \E v \in Value : Phase2a(b, v, p)
+    \/ \E b \in Ballot : \E p \in Proposer :  \E v \in Value : \E Q \in Quorum : Phase2a(b, v, p, Q)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
 Spec == Init /\ [][Next]_vars
