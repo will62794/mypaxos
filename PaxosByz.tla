@@ -134,6 +134,12 @@ Q1bMsgs(Q, b, p) == {m \in msgs : /\ m.type = "1b"
                                   /\ m.bal = b
                                   /\ m.prop = p}
 
+\* Determines if a value 'v' is safe to be chosen based on a given quorum of non-empty 1b messages, 'Q1bv'.
+ChosenValue1b(v, Q1bv) == 
+    \E m \in Q1bv : 
+        /\ m.mval = v \* the value we pick is equal to the one in the 1b message.
+        /\ \A mj \in Q1bv : m.mbal >= mj.mbal \* it is the highest 1b proposal in the quorum.
+
 (***************************************************************************)
 (* The Phase2a(b, v) action can be performed by the ballot b leader if two *)
 (* conditions are satisfied: (i) it has not already performed a phase 2a   *)
@@ -164,9 +170,7 @@ Phase2a(b, v, p, Q) ==
     \* accepted proposal in the quorum.
     /\ \/ Q1bv = {}
        \* TODO: Use voting to ensure safety in presence of limited # of Byzantine acceptors.
-       \/ \E m \in Q1bv : 
-            /\ m.mval = v \* the value we pick is equal to the one in the 1b message.
-            /\ \A mj \in Q1bv : m.mbal >= mj.mbal \* it is the highest 1b proposal in the quorum.
+       \/ ChosenValue1b(v, Q1bv)
     /\ Send([type |-> "2a", bal |-> b, val |-> v, prop |-> p]) 
     /\ UNCHANGED <<maxBal, maxVBal, maxVal, byzAccs>>
   
