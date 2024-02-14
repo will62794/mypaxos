@@ -172,10 +172,11 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
 (***************************************************************************)
 (* Below are defined the next-state action and the complete spec.          *)
 (***************************************************************************)
-Next == \/ \E b \in Ballot : \E p \in Proposer : 
-                                \/ Phase1a(b, p)
-                             \/ \E v \in Value : Phase2a(b, v, p)
-        \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) \/ Phase2b(a)
+Next == 
+  \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
+  \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
+  \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p)
+  \/ \E a \in Acceptor : Phase2b(a)
 
 Spec == Init /\ [][Next]_vars
 ----------------------------------------------------------------------------
