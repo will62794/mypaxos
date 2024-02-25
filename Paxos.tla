@@ -195,5 +195,12 @@ VotedFor(a, b, v) == <<b, v>> \in votes[a]
 ChosenAt(b, v) == \E Q \in Quorum : \A a \in Q : VotedFor(a, b, v)
 
 chosen == {v \in Value : \E b \in Ballot : ChosenAt(b, v)}
+
+\* Different proposers never use the same ballot number.
+\* Why are things safe even if this is violated?
+ProposerBallotsUnique == 
+    \A mi,mj \in msgs : 
+        (mi.type = "1a" /\ mj.type = "1a" /\ mi.proposer # mj.proposer) => 
+            (mi.bal # mj.bal)  
                                                    
 ============================================================================
