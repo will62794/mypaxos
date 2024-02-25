@@ -84,6 +84,9 @@ Init == /\ maxBal = [a \in Node |-> -1]
 (***************************************************************************)
 Send(m) == msgs' = msgs \cup {m}
 
+\* We can alternatively view a message "broadcast" as simply recording of a process state at some
+\* point in its history. Thus, this allows other nodes to "read" the state of this process at some
+\* point in its history (e.g. some past state).
 BroadcastPost(sender) == msgs' = msgs \cup {[
     from |-> sender,
     maxBal |-> maxBal'[sender],
