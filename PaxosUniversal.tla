@@ -104,16 +104,20 @@ Phase1a(b, n) ==
 (* b and sends a phase 1b message to the leader containing the values of   *)
 (* maxVBal[a] and maxVal[a].                                               *)
 (***************************************************************************)
-Phase1b(n) == 
-    \E m \in msgs :
+\* 1a messages are typically sent by proposers at will, without any preconditions,
+\* so we can view this as essentially equivalent to acceptors being able to
+\* "magically" execute a 1b action for a given ballot number. This is how we model
+\* things here.
+Phase1b(b, n) == 
+    \* \E m \in msgs :
         \* /\ m.proposer = p
         \* /\ m.type = "1a"
-        /\ m.maxBal > maxBal[n]
-        /\ maxBal' = [maxBal EXCEPT ![n] = m.maxBal]
-        \* /\ Send([type |-> "1b", acc |-> a, bal |-> m.bal, 
-                \* mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p])
-        /\ UNCHANGED <<maxVBal, maxVal, chosen>>
-        /\ BroadcastPost(n)
+    /\ b >= maxBal[n]
+    /\ maxBal' = [maxBal EXCEPT ![n] = b]
+    \* /\ Send([type |-> "1b", acc |-> a, bal |-> m.bal, 
+            \* mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p])
+    /\ UNCHANGED <<maxVBal, maxVal, chosen>>
+    /\ BroadcastPost(n)
 
 
 (***************************************************************************)
@@ -136,6 +140,11 @@ Phase1b(n) ==
 (* can vote for v in ballot b, unless it has already set maxBal[a]         *)
 (* greater than b (thereby promising not to vote in ballot b).             *)
 (***************************************************************************)
+
+\* Why does proposer need to designated aggregator/checker of the phase 2a condition?
+\* Couldn't any node/acceptor just do it? If we do a broadcast, this seems natural,
+\* but I guess it is not necessarily natural if you assume a point to point broadcast model,
+\* since 1b messages are sent directly to some proposer.
 Phase2a(b, v, n) ==
 \*   /\ ~ \E m \in msgs : m.type = "2a" /\ m.bal = b /\ m.proposer = n
   /\ \E Q \in Quorum :
@@ -143,14 +152,20 @@ Phase2a(b, v, n) ==
                                  /\ m.from \in Q
                                  /\ m.maxBal = b}
             Q1bv == {m \in Q1b : m.maxVBal \geq 0}
-        IN  /\ \A a \in Q : \E m \in Q1b : m.from = a 
+        IN  /\ \A a \in Q : \E m \in Q1b : m.from = a  \* is this really necessary? can't anyone gather this info?
             /\ \/ Q1bv = {}
                \/ \E m \in Q1bv : 
                     /\ m.maxVal = v
                     /\ \A mm \in Q1bv : m.maxVBal \geq mm.maxVBal 
-\*   /\ Send([type |-> "2a", bal |-> b, val |-> v, proposer |-> n]) 
-  /\ UNCHANGED <<maxBal, maxVBal, maxVal, chosen>>
+  \* Shouldn't an acceptor be able to go ahead and accept a new value at this point
+  \* if allowed?
+  /\ b \geq maxBal[n]
+  /\ maxBal' = [maxBal EXCEPT ![n] = b] 
+  /\ maxVBal' = [maxVBal EXCEPT ![n] = b] 
+  /\ maxVal' = [maxVal EXCEPT ![n] = v]
+  /\ UNCHANGED <<chosen>>
   /\ BroadcastPost(n)
+\* /\ Send([type |-> "2a", bal |-> b, val |-> v, proposer |-> n]) 
 
 (***************************************************************************)
 (* The Phase2b(a) action is performed by Node a upon receipt of a      *)
@@ -167,13 +182,20 @@ Phase2b(n) ==
     \E m \in msgs : 
         \* /\ m.type = "2a"
         /\ m.maxBal \geq maxBal[n]
-        \* /\ maxBal' = [maxBal EXCEPT ![n] = m.bal] 
-        \* /\ maxVBal' = [maxVBal EXCEPT ![n] = m.bal] 
-        \* /\ maxVal' = [maxVal EXCEPT ![n] = m.val]
+        /\ maxBal' = [maxBal EXCEPT ![n] = m.maxBal] 
+        /\ maxVBal' = [maxVBal EXCEPT ![n] = m.maxVBal] 
+        /\ maxVal' = [maxVal EXCEPT ![n] = m.maxVal]
         \* /\ Send([type |-> "2b", acc |-> a,
                 \* bal |-> m.bal, val |-> m.val, proposer |-> None])
         /\ BroadcastPost(n)
      
+\* An acceptor node chooses a value
+Choose(n, b, v) ==
+    /\ \E Q \in Quorum : \A a \in Q : maxVBal[a] = b /\ maxVal[a] = v
+    /\ chosen' = [chosen EXCEPT ![n] = v]
+    /\ UNCHANGED <<maxBal, maxVBal, maxVal, msgs>>
+
+
 
 (***************************************************************************)
 (* In an implementation, there will be learner processes that learn from   *)
@@ -187,10 +209,11 @@ Phase2b(n) ==
 (* Below are defined the next-state action and the complete spec.          *)
 (***************************************************************************)
 Next == 
-    \/ \E b \in Ballot : \E n \in Node : Phase1a(b, n)
-    \/ \E n \in Node : Phase1b(n)
+    \* \/ \E b \in Ballot : \E n \in Node : Phase1a(b, n)
+    \/ \E b \in Ballot, n \in Node : Phase1b(b, n)
     \/ \E b \in Ballot : \E v \in Value : \E n \in Node : Phase2a(b, v, n)
     \* \/ \E a \in Node : \E p \in Node : Phase2b(a)
+    \/ \E a \in Node : \E b \in Ballot, v \in Value : Choose(a, b, v)
 
 Spec == Init /\ [][Next]_vars
 ----------------------------------------------------------------------------
