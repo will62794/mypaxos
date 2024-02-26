@@ -131,19 +131,6 @@ Next ==
 
 Spec == Init /\ [][Next]_vars
 ----------------------------------------------------------------------------
-(***************************************************************************)
-(* As we observed, votes are registered by sending phase 2b messages.  So  *)
-(* the array `votes' describing the votes cast by the Nodes is defined *)
-(* as follows.                                                             *)
-(***************************************************************************)
-\* votes == [a \in Node |->  
-\*            {<<m.bal, m.val>> : m \in {mm \in msgs: /\ mm.type = "2b"
-\*                                                    /\ mm.acc = a }}]
-                                                   
-                                                  
-\* VotedFor(a, b, v) == <<b, v>> \in votes[a]
-
-\* ChosenAt(b, v) == \E Q \in Quorum : \A a \in Q : VotedFor(a, b, v)
 
 \* If two nodes have chosen values, they must be the same.
 Safety == \A n,n2 \in Node : 
