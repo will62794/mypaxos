@@ -37,7 +37,9 @@ VARIABLE maxBal,
          maxVal,    \* ballot number cast by a; it equals <<-1, None>> if
                     \* a has not cast any vote.
          chosen,    \* chosen value at each node.
-         msgs     \* The set of all messages that have been sent.
+         msgs,     \* The set of all messages that have been sent.
+         proposals \* A global table mapping from ballot numbers to values
+                    \* for that ballot.
 
 (***************************************************************************)
 (* NOTE:                                                                   *)
@@ -57,7 +59,7 @@ VARIABLE maxBal,
 (* retransmitted if lost) to guarantee progress.                           *)
 (***************************************************************************)
 
-vars == <<maxBal, maxVBal, maxVal, chosen, msgs>>
+vars == <<maxBal, maxVBal, maxVal, chosen, msgs, proposals>>
   (*************************************************************************)
   (* It is convenient to define some identifier to be the tuple of all     *)
   (* variables.  I like to use the identifier `vars'.                      *)
@@ -77,6 +79,14 @@ Init == /\ maxBal = [a \in Node |-> -1]
         /\ maxVal = [a \in Node |-> None]
         /\ chosen = [n \in Node |-> None]
         /\ msgs = {}
+        \* Stores some arbitrary global table mapping from ballot numbers
+        \* to the value for that ballot. We assume in this model that values
+        \* for a given proposal/ballot number are assigned in some way that is unique
+        \* to each proposal/ballot, but we don't care how they are assigned. For example,
+        \* in practice, this might be done by assigning proposal numbers uniquely to each 
+        \* distinct node, so that when they pick a value for a ballot, they can be sure 
+        \* it doesn't conflict with any already chosen value for that ballot.
+        /\ proposals \in [Ballot -> Value]
 
 (***************************************************************************)
 (* The actions.  We begin with the subaction (an action that will be used  *)
@@ -135,7 +145,7 @@ Phase1b(b, n) ==
     /\ maxBal' = [maxBal EXCEPT ![n] = b]
     \* /\ Send([type |-> "1b", acc |-> a, bal |-> m.bal, 
             \* mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p])
-    /\ UNCHANGED <<maxVBal, maxVal, chosen>>
+    /\ UNCHANGED <<maxVBal, maxVal, chosen, proposals>>
     /\ BroadcastPost(n)
 
 
@@ -179,13 +189,14 @@ Phase2a(b, v, n) ==
   \* Shouldn't an acceptor be able to go ahead and accept a new value at this point
   \* if allowed?
   \* Problem seems to be that we still need to deal with proposal number uniqueness, though (?)
-  /\ b % Cardinality(Node) = NodeOrder[n] \* Assume nodes are assigned ballot numbers based on node ids.
+\*   /\ b % Cardinality(Node) = NodeOrder[n] \* Assume nodes are assigned ballot numbers based on node ids.
+  /\ proposals[b] = v
   /\ (maxVBal[n] = b) => maxVal[n] = None \* Cannot have already picked a value for this ballot. 
   /\ b >= maxBal[n]
   /\ maxBal' = [maxBal EXCEPT ![n] = b] 
   /\ maxVBal' = [maxVBal EXCEPT ![n] = b] 
   /\ maxVal' = [maxVal EXCEPT ![n] = v]
-  /\ UNCHANGED <<chosen>>
+  /\ UNCHANGED <<chosen, proposals>>
   /\ BroadcastPost(n)
 \* /\ Send([type |-> "2a", bal |-> b, val |-> v, proposer |-> n]) 
 
@@ -211,13 +222,13 @@ Phase2b(n) ==
         \* /\ Send([type |-> "2b", acc |-> a,
                 \* bal |-> m.bal, val |-> m.val, proposer |-> None])
         /\ BroadcastPost(n)
-        /\ UNCHANGED <<chosen>>
+        /\ UNCHANGED <<chosen, proposals>>
      
 \* An acceptor node chooses a value
 Choose(n, b, v) ==
     /\ \E Q \in Quorum : \A a \in Q : maxVBal[a] = b /\ maxVal[a] = v
     /\ chosen' = [chosen EXCEPT ![n] = v]
-    /\ UNCHANGED <<maxBal, maxVBal, maxVal, msgs>>
+    /\ UNCHANGED <<maxBal, maxVBal, maxVal, msgs, proposals>>
 
 
 
