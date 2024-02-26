@@ -196,6 +196,8 @@ ChosenAt(b, v) == \E Q \in Quorum : \A a \in Q : VotedFor(a, b, v)
 
 chosen == {v \in Value : \E b \in Ballot : ChosenAt(b, v)}
 
+Safety == Cardinality(chosen) <= 1
+
 \* Different proposers never use the same ballot number.
 \* Why are things safe even if this is violated?
 ProposerBallotsUnique == 
