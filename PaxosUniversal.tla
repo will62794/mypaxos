@@ -1,13 +1,19 @@
 -------------------------------- MODULE PaxosUniversal -------------------------------
-(***************************************************************************)
-(* This is a specification of the Paxos algorithm without explicit leaders *)
-(* or learners.  It refines the spec in Voting                             *)
-(***************************************************************************)
+
+\*
+\* This is a spec of Paxos in what we are referring to as a "universal" message
+\* passing style. 
+\* 
+\* We eschew all notions of separate roles (proposers/acceptors/learners) and
+\* simply model the protocol based on the local state of N processes that need
+\* to achieve consensus on a value. We also get rid of any protocol specific
+\* message passing details by having each node broadcast their entire state into
+\* the network on every state update.
+\*
+
+
 EXTENDS Integers, FiniteSets, TLC
------------------------------------------------------------------------------
-(***************************************************************************)
-(* The constant parameters and the set Ballots are the same as in Voting.  *)
-(***************************************************************************)
+
 \* Get rid of all separation between proposer/Node concept i.e., collapse them
 \* into one.
 CONSTANT Value, Node, Quorum
@@ -17,7 +23,7 @@ CONSTANT Ballot
 ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Node
                            /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
   
------------------------------------------------------------------------------
+
 VARIABLE maxBal, 
          maxVBal, \* <<maxVBal[a], maxVal[a]>> is the vote with the largest
          maxVal,    \* ballot number cast by a; it equals <<-1, None>> if
