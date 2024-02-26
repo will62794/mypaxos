@@ -36,21 +36,6 @@ TypeOK == /\ maxBal \in [Node -> Ballot \cup {-1}]
           /\ maxVBal \in [Node -> Ballot \cup {-1}]
           /\ maxVal \in [Node -> Value \cup {None}]
         \*   /\ msgs \subseteq Message
-          
-
-Init == /\ maxBal = [a \in Node |-> -1]
-        /\ maxVBal = [a \in Node |-> -1]
-        /\ maxVal = [a \in Node |-> None]
-        /\ chosen = [n \in Node |-> None]
-        /\ msgs = {}
-        \* Stores some arbitrary global table mapping from ballot numbers
-        \* to the value for that ballot. We assume in this model that values
-        \* for a given proposal/ballot number are assigned in some way that is unique
-        \* to each proposal/ballot, but we don't care how they are assigned. For example,
-        \* in practice, this might be done by assigning proposal numbers uniquely to each 
-        \* distinct node, so that when they pick a value for a ballot, they can be sure 
-        \* it doesn't conflict with any already chosen value for that ballot.
-        /\ proposals \in [Ballot -> Value]
 
 \* We can alternatively view a message "broadcast" as simply recording of a
 \* process state at some point in its history. Thus, this allows other nodes to
@@ -66,6 +51,21 @@ BroadcastPost(sender) == msgs' = msgs \cup {[
 \* Establish some fixed, arbitrary ordering on nodes.
 Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
 NodeOrder == CHOOSE f \in [Node -> 0..Cardinality(Node)] : Injective(f)
+
+
+Init == /\ maxBal = [a \in Node |-> -1]
+        /\ maxVBal = [a \in Node |-> -1]
+        /\ maxVal = [a \in Node |-> None]
+        /\ chosen = [n \in Node |-> None]
+        /\ msgs = {}
+        \* Stores some arbitrary global table mapping from ballot numbers
+        \* to the value for that ballot. We assume in this model that values
+        \* for a given proposal/ballot number are assigned in some way that is unique
+        \* to each proposal/ballot, but we don't care how they are assigned. For example,
+        \* in practice, this might be done by assigning proposal numbers uniquely to each 
+        \* distinct node, so that when they pick a value for a ballot, they can be sure 
+        \* it doesn't conflict with any already chosen value for that ballot.
+        /\ proposals \in [Ballot -> Value]
 
 \* 1a messages are typically sent by proposers at will, without any
 \* preconditions, so we can view this as essentially equivalent to acceptors
@@ -116,8 +116,8 @@ Phase2b(n) ==
         /\ BroadcastPost(n)
         /\ UNCHANGED <<chosen, proposals>>
      
-\* An acceptor node locally chooses (i.e. locally decides) a value.
-Choose(n, b, v) ==
+\* An acceptor node locally learns/decides a value.
+Learn(n, b, v) ==
     /\ \E Q \in Quorum : \A a \in Q : maxVBal[a] = b /\ maxVal[a] = v
     /\ chosen' = [chosen EXCEPT ![n] = v]
     /\ UNCHANGED <<maxBal, maxVBal, maxVal, msgs, proposals>>
@@ -127,7 +127,7 @@ Next ==
     \/ \E b \in Ballot, n \in Node : Phase1b(b, n)
     \/ \E b \in Ballot, v \in Value, n \in Node, Q \in Quorum : Phase2a(b, v, n, Q)
     \/ \E a \in Node : \E p \in Node : Phase2b(a)
-    \/ \E a \in Node : \E b \in Ballot, v \in Value : Choose(a, b, v)
+    \/ \E a \in Node : \E b \in Ballot, v \in Value : Learn(a, b, v)
 
 Spec == Init /\ [][Next]_vars
 ----------------------------------------------------------------------------
