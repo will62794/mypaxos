@@ -112,10 +112,10 @@ NodeOrder == CHOOSE f \in [Node -> 0..Cardinality(Node)] : Injective(f)
 
 
 \* Allow any node to initiate a proposal to try to get it accepted.
-Phase1a(b, n) == 
-    /\ UNCHANGED <<maxVBal, maxVal, chosen>>
-    /\ maxBal' = [maxBal EXCEPT ![n] = b]
-    /\ BroadcastPost(n)
+\* Phase1a(b, n) == 
+\*     /\ UNCHANGED <<maxVBal, maxVal, chosen>>
+\*     /\ maxBal' = [maxBal EXCEPT ![n] = b]
+\*     /\ BroadcastPost(n)
  
 (***************************************************************************)
 (* Upon receipt of a ballot b phase 1a message, Node a can perform a   *)
@@ -267,5 +267,6 @@ Inv == Cardinality(msgs) <= 2
 Symmetry == Permutations(Node)
 
 Cover1 == \A n \in Node : chosen[n] = None
+Cover2 == ~(\A n \in Node : chosen[n] # None)
 
 ============================================================================
