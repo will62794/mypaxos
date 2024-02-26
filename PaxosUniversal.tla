@@ -180,6 +180,7 @@ Phase2a(b, v, n) ==
   \* if allowed?
   \* Problem seems to be that we still need to deal with proposal number uniqueness, though (?)
   /\ b % Cardinality(Node) = NodeOrder[n] \* Assume nodes are assigned ballot numbers based on node ids.
+  /\ (maxVBal[n] = b) => maxVal[n] = None \* Cannot have already picked a value for this ballot. 
   /\ b >= maxBal[n]
   /\ maxBal' = [maxBal EXCEPT ![n] = b] 
   /\ maxVBal' = [maxVBal EXCEPT ![n] = b] 
@@ -202,7 +203,8 @@ Phase2b(n) ==
     \* Proposers typically play a kind of "information aggregator" role in standard Paxos model (?)
     \E m \in msgs : 
         \* /\ m.type = "2a"
-        /\ m.maxBal \geq maxBal[n]
+        /\ m.maxVBal \geq maxBal[n]
+        /\ m.maxVBal >= 0
         /\ maxBal' = [maxBal EXCEPT ![n] = m.maxBal] 
         /\ maxVBal' = [maxVBal EXCEPT ![n] = m.maxVBal] 
         /\ maxVal' = [maxVal EXCEPT ![n] = m.maxVal]
@@ -264,5 +266,6 @@ Inv == Cardinality(msgs) <= 2
 
 Symmetry == Permutations(Node)
 
+Cover1 == \A n \in Node : chosen[n] = None
 
 ============================================================================
