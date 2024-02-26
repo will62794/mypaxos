@@ -209,6 +209,7 @@ Phase2b(n) ==
         \* /\ Send([type |-> "2b", acc |-> a,
                 \* bal |-> m.bal, val |-> m.val, proposer |-> None])
         /\ BroadcastPost(n)
+        /\ UNCHANGED <<chosen>>
      
 \* An acceptor node chooses a value
 Choose(n, b, v) ==
@@ -233,7 +234,7 @@ Next ==
     \* \/ \E b \in Ballot : \E n \in Node : Phase1a(b, n)
     \/ \E b \in Ballot, n \in Node : Phase1b(b, n)
     \/ \E b \in Ballot : \E v \in Value : \E n \in Node : Phase2a(b, v, n)
-    \* \/ \E a \in Node : \E p \in Node : Phase2b(a)
+    \/ \E a \in Node : \E p \in Node : Phase2b(a)
     \/ \E a \in Node : \E b \in Ballot, v \in Value : Choose(a, b, v)
 
 Spec == Init /\ [][Next]_vars
