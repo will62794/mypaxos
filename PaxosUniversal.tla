@@ -162,7 +162,7 @@ Phase2a(b, v, n) ==
                     /\ \A mm \in Q1bv : m.maxVBal \geq mm.maxVBal 
   \* Shouldn't an acceptor be able to go ahead and accept a new value at this point
   \* if allowed?
-  /\ b \geq maxBal[n]
+  /\ b >= maxBal[n]
   /\ maxBal' = [maxBal EXCEPT ![n] = b] 
   /\ maxVBal' = [maxVBal EXCEPT ![n] = b] 
   /\ maxVal' = [maxVal EXCEPT ![n] = v]
