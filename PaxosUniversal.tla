@@ -94,6 +94,22 @@ BroadcastPost(sender) == msgs' = msgs \cup {[
     maxVal |-> maxVal'[sender]
 ]}
 
+Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
+
+\* Establish some fixed, arbitrary ordering on nodes.
+NodeOrder == CHOOSE f \in [Node -> 0..Cardinality(Node)] : Injective(f)
+
+(***************************************************************************)
+(* The Phase1a(b, n) action can be performed by any Node n for any ballot  *)
+(* number b.  It sets maxBal[n] to b and sends a phase 1a message to the  *)
+(* other Nodes.                                                            *)
+
+(***************************************************************************)
+(* The Phase1a(b, n) action can be performed by any Node n for any ballot  *)
+(* number b.  It sets maxBal[n] to b and sends a phase 1a message to the  *)
+(* other Nodes.                                                            *)
+(***************************************************************************)
+
 
 \* Allow any node to initiate a proposal to try to get it accepted.
 Phase1a(b, n) == 
@@ -162,6 +178,8 @@ Phase2a(b, v, n) ==
                     /\ \A mm \in Q1bv : m.maxVBal \geq mm.maxVBal 
   \* Shouldn't an acceptor be able to go ahead and accept a new value at this point
   \* if allowed?
+  \* Problem seems to be that we still need to deal with proposal number uniqueness, though (?)
+  /\ b % Cardinality(Node) = NodeOrder[n] \* Assume nodes are assigned ballot numbers based on node ids.
   /\ b >= maxBal[n]
   /\ maxBal' = [maxBal EXCEPT ![n] = b] 
   /\ maxVBal' = [maxVBal EXCEPT ![n] = b] 
