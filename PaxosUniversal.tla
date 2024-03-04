@@ -137,6 +137,8 @@ Phase2b(n) ==
      
 \* A node locally learns/decides a value by seeing if a quorum have accepted
 \* it at a given ballot number.
+\* Note that this action only updates node-local state (`chosen`), so we don't explicitly 
+\* execute a state broadcast here.
 Learn(n, b, v, Q) ==
     /\ \A a \in Q : maxVBal[a] = b /\ maxVal[a] = v
     /\ chosen' = [chosen EXCEPT ![n] = v]
