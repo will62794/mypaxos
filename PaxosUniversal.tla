@@ -77,7 +77,7 @@ Init == /\ maxBal = [a \in Node |-> -1]
 \* preconditions, so we can view this as essentially equivalent to acceptors
 \* being able to "magically" execute a 1b action for a given ballot number. This
 \* is how we model things here.
-Phase1b(b, n) == 
+Prepare(b, n) == 
     /\ b >= maxBal[n]
     /\ maxBal' = [maxBal EXCEPT ![n] = b]
     /\ UNCHANGED <<maxVBal, maxVal, chosen, proposals>>
@@ -130,7 +130,7 @@ Learn(n, b, v) ==
 
 \* The next-state relation. 
 Next == 
-    \/ \E b \in Ballot, n \in Node : Phase1b(b, n)
+    \/ \E b \in Ballot, n \in Node : Prepare(b, n)
     \/ \E b \in Ballot, v \in Value, n \in Node, Q \in Quorum : Phase2a(b, v, n, Q)
     \/ \E a \in Node : \E p \in Node : Phase2b(a)
     \/ \E a \in Node : \E b \in Ballot, v \in Value : Learn(a, b, v)
