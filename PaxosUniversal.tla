@@ -10,28 +10,37 @@
 \* message passing details by having each node broadcast their entire state into
 \* the network on every state update.
 \*
-
-
 EXTENDS Integers, FiniteSets, TLC
 
-\* Get rid of all separation between proposer/Node concept i.e., collapse them
-\* into one.
-CONSTANT Value, Node, Quorum
-CONSTANT None
+\* Remove distinctions between proposer/Node concept i.e., collapse them into one.
+CONSTANT Node
+CONSTANT Value
+CONSTANT Quorum
 CONSTANT Ballot
+
+CONSTANT None
 
 ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Node
                            /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
   
+\* The largest ballot number seen by a node.
+VARIABLE maxBal
 
-VARIABLE maxBal, 
-         maxVBal, \* <<maxVBal[a], maxVal[a]>> is the vote with the largest
-         maxVal,    \* ballot number cast by a; it equals <<-1, None>> if
-                    \* a has not cast any vote.
-         chosen,    \* chosen value at each node.
-         msgs,     \* The set of all messages that have been sent.
-         proposals \* A global table mapping from ballot numbers to values
-                    \* for that ballot.
+\* <<maxVBal[a], maxVal[a]>> is the vote with the largest
+\* ballot number cast by a; it equals <<-1, None>> if
+\* a has not cast any vote.
+VARIABLE maxVal 
+VARIABLE maxVBal 
+
+\* The value chosen/decided at each node.
+VARIABLE chosen   
+
+\* The set of all messages that have been sent.
+VARIABLE msgs
+
+\* A global table mapping from ballot numbers to values for that ballot.
+\* Initialized once, non-deterministically, in the initial state.
+VARIABLE proposals 
 
 vars == <<maxBal, maxVBal, maxVal, chosen, msgs, proposals>>
   
@@ -41,12 +50,18 @@ vars == <<maxBal, maxVBal, maxVal, chosen, msgs, proposals>>
 TypeOK == /\ maxBal \in [Node -> Ballot \cup {-1}]
           /\ maxVBal \in [Node -> Ballot \cup {-1}]
           /\ maxVal \in [Node -> Value \cup {None}]
-        \*   /\ msgs \subseteq Message
+          /\ msgs \subseteq [
+                    from : Node,
+                    maxBal : Ballot \cup {-1},
+                    maxVBal : Ballot \cup {-1},
+                    maxVal : Value \cup {None}
+            ]
+          /\ chosen \in [Node -> Value \cup {None}]
+          /\ proposals \in [Ballot -> Value \cup {None}]
 
-\* We can alternatively view a message "broadcast" as simply recording of a
-\* process state at some point in its history. Thus, this allows other nodes to
-\* "read" the state of this process at some point in its history (e.g. some past
-\* state).
+\* We can view a message "broadcast" as simply recording of a process state at
+\* some point in its history. Thus, this allows other nodes to "read" the state
+\* of this process at some point in its history (e.g. some past state).
 BroadcastPost(sender) == msgs' = msgs \cup {[
     from |-> sender,
     maxBal |-> maxBal'[sender],
@@ -55,9 +70,8 @@ BroadcastPost(sender) == msgs' = msgs \cup {[
 ]}
 
 \* Establish some fixed, arbitrary ordering on nodes.
-Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
-NodeOrder == CHOOSE f \in [Node -> 0..Cardinality(Node)] : Injective(f)
-
+\* Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
+\* NodeOrder == CHOOSE f \in [Node -> 0..Cardinality(Node)] : Injective(f)
 
 Init == /\ maxBal = [a \in Node |-> -1]
         /\ maxVBal = [a \in Node |-> -1]
