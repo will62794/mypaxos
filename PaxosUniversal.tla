@@ -124,21 +124,21 @@ Phase2a(b, v, n, Q) ==
   /\ BroadcastPost(n)
 
 Phase2b(n) == 
-    \* Why not just directly tally quorum needed to go ahead and complete 2b?
-    \* Proposers typically play a kind of "information aggregator" role in
-    \* standard Paxos model (?)
+    \* A node directly checks if it can accept a value by seeing if some other value has accepted it at
+    \* a ballot that is not older than its latest ballot. If so, it can go ahead and accept it itself.
     \E m \in msgs : 
         /\ m.maxVBal \geq maxBal[n]
         /\ m.maxVBal >= 0
-        /\ maxBal' = [maxBal EXCEPT ![n] = m.maxBal] 
+        /\ maxBal' = [maxBal EXCEPT ![n] = m.maxVBal] 
         /\ maxVBal' = [maxVBal EXCEPT ![n] = m.maxVBal] 
         /\ maxVal' = [maxVal EXCEPT ![n] = m.maxVal]
         /\ BroadcastPost(n)
         /\ UNCHANGED <<chosen, proposals>>
      
-\* An acceptor node locally learns/decides a value.
-Learn(n, b, v) ==
-    /\ \E Q \in Quorum : \A a \in Q : maxVBal[a] = b /\ maxVal[a] = v
+\* A node locally learns/decides a value by seeing if a quorum have accepted
+\* it at a given ballot number.
+Learn(n, b, v, Q) ==
+    /\ \A a \in Q : maxVBal[a] = b /\ maxVal[a] = v
     /\ chosen' = [chosen EXCEPT ![n] = v]
     /\ UNCHANGED <<maxBal, maxVBal, maxVal, msgs, proposals>>
 
@@ -147,7 +147,7 @@ Next ==
     \/ \E b \in Ballot, n \in Node : Prepare(b, n)
     \/ \E b \in Ballot, v \in Value, n \in Node, Q \in Quorum : Phase2a(b, v, n, Q)
     \/ \E a \in Node : \E p \in Node : Phase2b(a)
-    \/ \E a \in Node : \E b \in Ballot, v \in Value : Learn(a, b, v)
+    \/ \E a \in Node : \E b \in Ballot, v \in Value, Q \in Quorum : Learn(a, b, v, Q)
 
 Spec == Init /\ [][Next]_vars
 ----------------------------------------------------------------------------
