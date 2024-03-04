@@ -69,28 +69,25 @@ BroadcastPost(sender) == msgs' = msgs \cup {[
     maxVal |-> maxVal'[sender]
 ]}
 
-\* Establish some fixed, arbitrary ordering on nodes.
-\* Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
-\* NodeOrder == CHOOSE f \in [Node -> 0..Cardinality(Node)] : Injective(f)
-
 Init == /\ maxBal = [a \in Node |-> -1]
         /\ maxVBal = [a \in Node |-> -1]
         /\ maxVal = [a \in Node |-> None]
         /\ chosen = [n \in Node |-> None]
         /\ msgs = {}
-        \* Stores some arbitrary global table mapping from ballot numbers
-        \* to the value for that ballot. We assume in this model that values
-        \* for a given proposal/ballot number are assigned in some way that is unique
-        \* to each proposal/ballot, but we don't care how they are assigned. For example,
-        \* in practice, this might be done by assigning proposal numbers uniquely to each 
-        \* distinct node, so that when they pick a value for a ballot, they can be sure 
-        \* it doesn't conflict with any already chosen value for that ballot.
+        \* Stores some arbitrary global table mapping from ballot numbers to the
+        \* value for that ballot. We assume in this model that values for a
+        \* given proposal/ballot number are assigned in some way that is unique
+        \* to each proposal/ballot, but we don't care how they are assigned. For
+        \* example, in practice, this might be done by assigning proposal
+        \* numbers uniquely to each distinct node, so that when they pick a
+        \* value for a ballot, they can be sure it doesn't conflict with any
+        \* already chosen value for that ballot.
         /\ proposals \in [Ballot -> Value]
 
 \* 1a messages are typically sent by proposers at will, without any
 \* preconditions, so we can view this as essentially equivalent to acceptors
-\* being able to "magically" execute a 1b action for a given ballot number. This
-\* is how we model things here.
+\* being able to "magically" execute a 1b/prepare action for a given ballot
+\* number, which is how we model things here.
 Prepare(b, n) == 
     /\ b >= maxBal[n]
     /\ maxBal' = [maxBal EXCEPT ![n] = b]
@@ -100,20 +97,19 @@ Prepare(b, n) ==
 Q1b(Q, b) == {m \in msgs : m.from \in Q /\ m.maxBal = b}
 Q1bv(Q, b) == {m \in Q1b(Q,b) : m.maxVBal \geq 0}
 
-\* Why does proposer need to designated aggregator/checker of the phase 2a
-\* condition? Couldn't any node/acceptor just do it? If we do a broadcast, this
-\* seems natural, but I guess it is not necessarily natural if you assume a
-\* point to point broadcast model, since 1b messages are sent directly to some
-\* proposer.
+\* A node checks that a quorum is prepared at ballot 'b', and checks whether any
+\* values were chosen by nodes in this quorum at earlier ballots. If so, it can
+\* go ahead and accept a value with the highest such ballot, Otherwise, it is
+\* free to pick a value, in accordance with the global proposal uniqueness
+\* enforced by initial, nondeterministic, static assignment of values to
+\* ballots.
 Phase2a(b, v, n, Q) ==
   /\ \A a \in Q : \E m \in Q1b(Q,b) : m.from = a  \* is this really necessary? can't anyone gather this info?
-  /\ \/ Q1bv(Q,b) = {}
+  /\ \/ Q1bv(Q,b) = {} \* No proposals have been accepted in earlier ballots.
      \/ \E m \in Q1bv(Q, b) : 
         /\ m.maxVal = v
         /\ \A mm \in Q1bv(Q, b) : m.maxVBal \geq mm.maxVBal 
-  \* Shouldn't an acceptor be able to go ahead and accept a new value at this point
-  \* if allowed?
-  \* Problem seems to be that we still need to deal with proposal number uniqueness, though (?)
+  \* Ensure proposal uniqueness via global static assignment.
   /\ proposals[b] = v
   /\ (maxVBal[n] = b) => maxVal[n] = None \* Cannot have already picked a value for this ballot. 
   /\ b >= maxBal[n]
