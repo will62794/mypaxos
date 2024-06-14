@@ -140,7 +140,10 @@ Phase2b(n) ==
 \* Note that this action only updates node-local state (`chosen`), so we don't explicitly 
 \* execute a state broadcast here.
 Learn(n, b, v, Q) ==
-    /\ \A a \in Q : maxVBal[a] = b /\ maxVal[a] = v
+    /\ \A a \in Q : \E m \in msgs : 
+        /\ m.from = a 
+        /\ m.maxVBal = b 
+        /\ m.maxVal = v
     /\ chosen' = [chosen EXCEPT ![n] = v]
     /\ UNCHANGED <<maxBal, maxVBal, maxVal, msgs, proposals>>
 
