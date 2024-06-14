@@ -92,7 +92,7 @@ Init ==
 \* preconditions, so we can view this as essentially equivalent to acceptors
 \* being able to "magically" execute a 1b/prepare action for a given ballot
 \* number, which is how we model things here.
-Prepare(b, n) == 
+Prepare(n, b) == 
     /\ b >= maxBal[n]
     /\ maxBal' = [maxBal EXCEPT ![n] = b]
     /\ UNCHANGED <<maxVBal, maxVal, chosen, proposals>>
@@ -107,7 +107,7 @@ Q1bv(Q, b) == {m \in Q1b(Q,b) : m.maxVBal \geq 0}
 \* free to pick a value, in accordance with the global proposal uniqueness
 \* enforced by initial, nondeterministic, static assignment of values to
 \* ballots.
-Phase2a(b, v, n, Q) ==
+Phase2a(n, b, v, Q) ==
   /\ \A a \in Q : \E m \in Q1b(Q,b) : m.from = a  \* is this really necessary? can't anyone gather this info?
   /\ \/ Q1bv(Q,b) = {} \* No proposals have been accepted in earlier ballots.
      \/ \E m \in Q1bv(Q, b) : 
@@ -146,10 +146,10 @@ Learn(n, b, v, Q) ==
 
 \* The next-state relation. 
 Next == 
-    \/ \E b \in Ballot, n \in Node : Prepare(b, n)
-    \/ \E b \in Ballot, v \in Value, n \in Node, Q \in Quorum : Phase2a(b, v, n, Q)
-    \/ \E a \in Node : \E p \in Node : Phase2b(a)
-    \/ \E a \in Node : \E b \in Ballot, v \in Value, Q \in Quorum : Learn(a, b, v, Q)
+    \/ \E b \in Ballot, n \in Node : Prepare(n, b)
+    \/ \E b \in Ballot, v \in Value, n \in Node, Q \in Quorum : Phase2a(n, b, v, Q)
+    \/ \E n \in Node : Phase2b(n)
+    \/ \E n \in Node : \E b \in Ballot, v \in Value, Q \in Quorum : Learn(n, b, v, Q)
 
 Spec == Init /\ [][Next]_vars
 
