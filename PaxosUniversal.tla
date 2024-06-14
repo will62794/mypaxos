@@ -1,10 +1,9 @@
 -------------------------------- MODULE PaxosUniversal -------------------------------
 
 \*
-\* This is a spec of Paxos in what we are referring to as a "universal" message
-\* passing style. 
+\* A specification of Paxos in a so-called "universal" message passing style. 
 \* 
-\* We eschew all notions of separate roles (proposers/acceptors/learners) and
+\* We get rid of all notions of separate roles (proposers/acceptors/learners) and
 \* simply model the protocol based on the local state of N processes that need
 \* to achieve consensus on a value. We also get rid of any protocol specific
 \* message passing details by having each node broadcast their entire state into
@@ -23,6 +22,17 @@ CONSTANT None
 ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Node
                            /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
   
+\* A global table mapping from ballot numbers to values for that ballot.
+\* Initialized once, non-deterministically, in the initial state.
+VARIABLE proposals 
+
+\* The set of all messages that have been sent.
+VARIABLE msgs
+
+\* 
+\* Node-local state variables.
+\* 
+
 \* The largest ballot number seen by a node.
 VARIABLE maxBal
 
@@ -34,13 +44,6 @@ VARIABLE maxVBal
 
 \* The value chosen/decided at each node.
 VARIABLE chosen   
-
-\* The set of all messages that have been sent.
-VARIABLE msgs
-
-\* A global table mapping from ballot numbers to values for that ballot.
-\* Initialized once, non-deterministically, in the initial state.
-VARIABLE proposals 
 
 vars == <<maxBal, maxVBal, maxVal, chosen, msgs, proposals>>
   
@@ -69,20 +72,21 @@ BroadcastPost(sender) == msgs' = msgs \cup {[
     maxVal |-> maxVal'[sender]
 ]}
 
-Init == /\ maxBal = [a \in Node |-> -1]
-        /\ maxVBal = [a \in Node |-> -1]
-        /\ maxVal = [a \in Node |-> None]
-        /\ chosen = [n \in Node |-> None]
-        /\ msgs = {}
-        \* Stores some arbitrary global table mapping from ballot numbers to the
-        \* value for that ballot. We assume in this model that values for a
-        \* given proposal/ballot number are assigned in some way that is unique
-        \* to each proposal/ballot, but we don't care how they are assigned. For
-        \* example, in practice, this might be done by assigning proposal
-        \* numbers uniquely to each distinct node, so that when they pick a
-        \* value for a ballot, they can be sure it doesn't conflict with any
-        \* already chosen value for that ballot.
-        /\ proposals \in [Ballot -> Value]
+Init == 
+    /\ maxBal = [a \in Node |-> -1]
+    /\ maxVBal = [a \in Node |-> -1]
+    /\ maxVal = [a \in Node |-> None]
+    /\ chosen = [n \in Node |-> None]
+    /\ msgs = {}
+    \* Stores a global table mapping from ballot numbers to the
+    \* value for that ballot. We assume in this model that values for a
+    \* given proposal/ballot number are assigned in some way that is unique
+    \* to each proposal/ballot, but we don't care how they are assigned. For
+    \* example, in practice, this might be done by assigning proposal
+    \* numbers uniquely to each distinct node, so that when they pick a
+    \* value for a ballot, they can be sure it doesn't conflict with any
+    \* already chosen value for that ballot.
+    /\ proposals \in [Ballot -> Value]
 
 \* 1a messages are typically sent by proposers at will, without any
 \* preconditions, so we can view this as essentially equivalent to acceptors
@@ -148,11 +152,16 @@ Next ==
     \/ \E a \in Node : \E b \in Ballot, v \in Value, Q \in Quorum : Learn(a, b, v, Q)
 
 Spec == Init /\ [][Next]_vars
-----------------------------------------------------------------------------
 
-\* If two nodes have chosen values, they must be the same.
+\* Core safety property: if two nodes have chosen values, they must be the same.
 Safety == \A n,n2 \in Node : 
             (chosen[n] # None /\ chosen[n2] # None) => chosen[n] = chosen[n2]
+
+----------------------------------------------------------------------------
+
+\* 
+\* Auxiliary properties.
+\* 
 
 \* Inv == Cardinality(chosen) <= 1 
 Inv == Cardinality(msgs) <= 2
