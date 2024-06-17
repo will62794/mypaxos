@@ -125,6 +125,9 @@ Q1bv(Q, b) == {m \in Q1b(Q,b) : m.maxVBal \geq 0}
 \* information about this read can then be sent around to others allowing
 \* them to accept a certain proposal if they are able to?
 \* 
+\* Sometimes messages only carry information that doesn't need to be written down locally, but represent the 
+\* result of a "distributed read" by a node?
+\* 
 Phase2aFree(n, b, v, Q) ==
   /\ \A a \in Q : \E m \in Q1b(Q,b) : m.from = a
   /\ Q1bv(Q,b) = {} \* No proposals have been accepted in earlier ballots.
