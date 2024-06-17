@@ -101,7 +101,7 @@ Init ==
 \* We refer to this action as a node "preparing" in some new ballot number b.
 \* 
 Prepare(n, b) == 
-    /\ b >= maxBal[n]
+    /\ b > maxBal[n]
     /\ maxBal' = [maxBal EXCEPT ![n] = b]
     /\ UNCHANGED <<maxVBal, maxVal, chosen, proposals>>
     /\ BroadcastPostState(n)
