@@ -151,10 +151,11 @@ Phase2aBound(n, b, v, Q) ==
   /\ UNCHANGED <<chosen, proposals>>
   /\ BroadcastPostState(n)
 
-Phase2b(n) == 
+Phase2b(n, b) == 
     \* A node directly checks if it can accept a value by seeing if some other value has accepted it at
     \* a ballot that is not older than its latest ballot. If so, it can go ahead and accept it itself.
     \E m \in msgs : 
+        /\ m.maxVBal = b
         /\ m.maxVBal \geq maxBal[n]
         /\ m.maxVBal >= 0
         /\ maxBal' = [maxBal EXCEPT ![n] = m.maxVBal] 
@@ -180,7 +181,7 @@ Next ==
     \/ \E b \in Ballot, n \in Node : Prepare(n, b)
     \/ \E b \in Ballot, v \in Value, n \in Node, Q \in Quorum : Phase2aFree(n, b, v, Q)
     \/ \E b \in Ballot, v \in Value, n \in Node, Q \in Quorum : Phase2aBound(n, b, v, Q)
-    \/ \E n \in Node : Phase2b(n)
+    \/ \E n \in Node, b \in Ballot : Phase2b(n, b)
     \/ \E n \in Node : \E b \in Ballot, v \in Value, Q \in Quorum : Learn(n, b, v, Q)
 
 Spec == Init /\ [][Next]_vars
